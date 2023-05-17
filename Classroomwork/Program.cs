@@ -5,64 +5,69 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using System.Text.RegularExpressions;
+using static System.Net.Mime.MediaTypeNames;
+using System.Runtime.Remoting.Messaging;
+using System.Xml.Linq;
 
 namespace Classroomwork
 {
     internal class Program
     {
      
-        static string FileReader()
+        static string FileRead_Replace(string _path)
         {
-            var streamReader = new StreamReader("test.txt");//читаем весь файл
-            string result = string.Empty;
-            result = streamReader.ReadToEnd();
-            streamReader.Close();
+            var streamReader = new StreamReader(_path);//читаем весь файл
+            string result = string.Empty;//считываем файл в строку
+            result = streamReader.ReadToEnd();//считываем файл в строку
+            var digits = new Dictionary<string, string> {//словарь с нашими выражениями
+    { "0", "ноль" },
+    { "1", "один" },
+    { "2", "два" },
+    { "3", "три" },
+    { "4", "четыре" },
+    { "5", "пять" },
+    { "6", "шесть" },
+    { "7", "семь" },
+    { "8", "восемь" },
+    { "9", "девять" },
+    { "10", "десять" },
+    { "11", "одиннадцать" },
+    { "12", "двеннадцать" },
+ };         
+            Console.Write($"Считываем файл {result}\n");
+            result = Regex.Replace(result, @"\d+", x => digits[x.Value]);//замена
+            streamReader.Close();//закрыли файл
+            Console.Write($"Проведена замена на: {result}\n");
             return result;
         }
-        static void SaveToFile(string _path, string _text)
+        static void SaveToFile(string _text)
         {
-            string myDoc =
-                Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments);
-            Console.WriteLine(myDoc);
-            try
-            {
-                StreamWriter sw = new StreamWriter(_path, true);
-                sw.WriteLine(_text);
-                sw.Close();
-            }
-            catch (Exception ex)
-            {
-                Console.WriteLine(ex.Message);
+           
+                    File.WriteAllText($"test2-" + DateTime.Now.ToString("dd.MM.yyyy_hh.mm.ssss") + ".txt", _text);//сохранение файла
+                    Console.Write($"Результат записи в файл {_text}");//вывести на экран результат сохранения файлa
+
             }
 
-        }
-       
+      
+ 
         static void Main(string[] args)
         {
+
             string input = "test.txt";
             if (args.Length > 0)
-                {
-                    input = args[0];    
-                }
-               else
-                {
-                    Console.WriteLine("аргументы не переданны");
-                }
-
-            FileReader();
-            string[] numwords = {"один", "два", "три", "четыре", "пять", "шесть",
-  "семь", "восемь", "девять", "десять" };//массив с значениями
-
-             var result = Regex.Replace(input, "[0-9]+", m =>
-             string.Join(", ", m.Value.Select(c => numwords[c - '0'])));
-
-             /*Console.Write(result);
-            input = input.Replace("some text", "new value");
-             File.WriteAllText("test2.txt", input);
-              +DateTime.Now.ToString("yyyyMMdd_hhmmss") + ".jpg";*/
-          
-
+            {
+                input = args[0];
             }
+            else
+            {
+                Console.WriteLine("Аргументы не переданы. Попробуйте еще раз ввести аргументы через командную строку");
+            }
+           
+            SaveToFile(FileRead_Replace(input));
+
+
+
         }
+    }
     }
 
